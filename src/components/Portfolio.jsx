@@ -1,4 +1,9 @@
 import image from "../assets/working-desk.jpeg";
+import { motion, useInView } from "framer-motion";
+import { useState, useRef } from "react";
+
+const hiddenMask = `repeating-linear-gradient(to right, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 30px, rgba(0,0,0,1) 30px, rgba(0,0,0,1) 30px)`;
+const visibleMask = `repeating-linear-gradient(to right, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 0px, rgba(0,0,0,1) 0px, rgba(0,0,0,1) 30px)`;
 
 const imageAltText =
   "desk with multiple laptops, mobile, headphone, diary and some more gadgets";
@@ -41,6 +46,12 @@ const experienceList = [
 ];
 
 const Portfolio = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+
+  const ref=useRef(null);
+  const isInViewport = useInView(ref);
+
   return (
     <section className="padding w-[100%]" id="portfolio">
       <h2 style={{ textAlign: "center", fontWeight: "700" }}>Portfolio</h2>
@@ -58,7 +69,7 @@ const Portfolio = () => {
           }}
         >
           <div
-            className="w-[95%] sm:w-[60%]"
+            className="w-[95%] sm:w-[60%] shadow"
             style={{
               border: "1px solid rgb(204, 204, 204)",
               borderRadius: "10px",
@@ -90,15 +101,31 @@ const Portfolio = () => {
       <div className="w-[100%]">
         <h3 style={{ textAlign: "center", fontWeight: "600" }}>Projects</h3>
         <div className="flex md:flex-row gap-2 flex-col justify-center pt-[3rem] flex-wrap w-[100%]">
-          <div className="md:w-[45%] self-center ml-1">
+          <motion.div
+            ref={ref}
+            initial={false}
+            animate={
+              isInViewport && isLoaded && isInView
+                ? { WebkitMaskImage: visibleMask, maskImage: visibleMask }
+                : { WebkitMaskImage: hiddenMask, maskImage: hiddenMask }
+            }
+            transition={{ duration: 1, delay: 1 }}
+            viewport={{ once: true }}
+            onViewportEnter={() => setIsInView(true)}
+            className="md:w-[45%] self-center ml-1"
+          >
             <img
               src={image}
               alt={imageAltText}
+              onLoad={() => setIsLoaded(true)}
             />
-          </div>
+          </motion.div>
           <div className="w-[80%] container sm:w-[60%] md:w-[70%] lg:w-[50%] flex flex-col gap-3 sm:flex-row flex-wrap self-center">
             {projectList.map((project) => (
-              <div className="box flex flex-col md:w-[48%]" key={project.title}>
+              <div
+                className="box flex flex-col md:w-[48%] shadow"
+                key={project.title}
+              >
                 <a href={project.url} target="_blank" rel="noopener noreferrer">
                   <h3 style={{ flexBasis: "40px" }}>{project.title}</h3>
                 </a>
